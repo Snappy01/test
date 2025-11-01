@@ -1,48 +1,108 @@
-import { Card, CardBody, Button, ButtonGroup } from '@heroui/react'
 import { useEffect } from 'react'
+import { Card, CardBody, Button, ButtonGroup } from '@heroui/react'
+import { useWebSocket } from '../contexts/WebSocketContext'
+import { useDeviceFeedback } from '../hooks/useDeviceFeedback'
 
-const BlindsCard = ({ device, onCommand, isConnected, latestFeedback }) => {
-  // Gérer les feedbacks du serveur (broadcast)
+/**
+ * COMPOSANT CARD POUR LES STORES/VOLETS
+ * 
+ * Gère :
+ * - Les commandes UP / STOP / DOWN
+ * - La synchronisation avec les feedbacks du serveur (si disponibles)
+ * 
+ * Feedbacks utilisés (via useDeviceFeedback) :
+ * - ID de power_up : Commande montée
+ * - ID de stop : Commande arrêt
+ * - ID de power_down : Commande descente
+ * 
+ * Note: Les stores n'ont généralement pas de feedback de position,
+ * mais on écoute les feedbacks au cas où le serveur en enverrait
+ */
+const BlindsCard = ({ device }) => {
+  // ============================================================
+  // RÉCUPÉRATION DU CONTEXT ET DES FEEDBACKS
+  // ============================================================
+  
+  // Récupérer les fonctions du WebSocketContext
+  const { sendCommand, isConnected } = useWebSocket()
+  
+  // Récupérer les feedbacks pour ce device depuis le store
+  // feedbacks = { [id]: { id, type, value, timestamp } }
+  const feedbacks = useDeviceFeedback(device)
+
+  // ============================================================
+  // EXTRACTION DES IDs DU DEVICE
+  // ============================================================
+  
+  const powerUpId = device.commands?.digital?.power_up
+  const powerDownId = device.commands?.digital?.power_down
+  const stopId = device.commands?.digital?.stop
+
+  // ============================================================
+  // GESTION DES FEEDBACKS (optionnel pour les stores)
+  // ============================================================
+  
+  /**
+   * Gère les feedbacks reçus du serveur
+   * Les stores n'ont généralement pas de feedback, mais on écoute au cas où
+   */
   useEffect(() => {
-    if (!latestFeedback || !device.commands?.digital) return
-
-    const powerUpId = device.commands.digital.power_up
-    const powerDownId = device.commands.digital.power_down
-    const stopId = device.commands.digital.stop
-
-    // Les stores n'ont généralement pas de feedback direct, mais on peut gérer si nécessaire
-    // Par exemple, si le serveur envoie un feedback de position
-    if (latestFeedback.type === 'boolean') {
-      if (latestFeedback.id === powerUpId || latestFeedback.id === powerDownId || latestFeedback.id === stopId) {
-        console.log(`Feedback pour ${device.Name}:`, latestFeedback)
-        // Ici tu pourrais gérer l'état du store si nécessaire
-      }
+    // Si un feedback est reçu pour un des IDs du store, on le log
+    if (feedbacks[powerUpId] || feedbacks[powerDownId] || feedbacks[stopId]) {
+      console.log(`Feedback pour ${device.Name}:`, {
+        powerUp: feedbacks[powerUpId],
+        powerDown: feedbacks[powerDownId],
+        stop: feedbacks[stopId]
+      })
+      // Ici tu pourrais gérer l'état du store si nécessaire
+      // Par exemple, afficher une icône "en mouvement" si feedback reçu
     }
-  }, [latestFeedback, device])
+  }, [feedbacks, powerUpId, powerDownId, stopId, device.Name])
+
+  // ============================================================
+  // HANDLERS D'INTERACTION UTILISATEUR
+  // ============================================================
+  
+  /**
+   * Gère la commande UP (monter le store)
+   */
   const handleUp = () => {
     if (device.commands?.digital?.power_up) {
-      onCommand('digital', device.commands.digital.power_up, null)
+      sendCommand('digital', device.commands.digital.power_up, null)
     }
   }
 
+  /**
+   * Gère la commande STOP (arrêter le store)
+   */
   const handleStop = () => {
     if (device.commands?.digital?.stop) {
-      onCommand('digital', device.commands.digital.stop, null)
+      sendCommand('digital', device.commands.digital.stop, null)
     }
   }
 
+  /**
+   * Gère la commande DOWN (descendre le store)
+   */
   const handleDown = () => {
     if (device.commands?.digital?.power_down) {
-      onCommand('digital', device.commands.digital.power_down, null)
+      sendCommand('digital', device.commands.digital.power_down, null)
     }
   }
 
+  // ============================================================
+  // RENDU
+  // ============================================================
+  
   return (
     <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
       <CardBody className="p-4">
         <div className="flex flex-col gap-4">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white text-center">{device.Name}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white text-center">
+            {device.Name}
+          </h3>
           
+          {/* Boutons de contrôle */}
           <ButtonGroup 
             className="w-full" 
             variant="solid" 
@@ -90,4 +150,3 @@ const BlindsCard = ({ device, onCommand, isConnected, latestFeedback }) => {
 }
 
 export default BlindsCard
-

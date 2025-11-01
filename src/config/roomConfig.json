@@ -1,7 +1,7 @@
 {
   "Chambre Maitre": {
     "roomName": "Chambre Maitre",
-    "wsUrl": "ws://172.16.80.104:9899/server",
+    "wsUrl": "ws://192.168.1.110:9494/server",
     "devices": {
       "Lights": [
         {
@@ -20,8 +20,8 @@
           "Name": "Dressing",
           "commands": {
             "digital": {
-              "power_on": 1,
-              "power_off": 2
+              "power_on": 23,
+              "power_off": 24
             },
             "ushort": {
               "intensity": 1
@@ -32,8 +32,8 @@
           "Name": "Ceiling",
           "commands": {
             "digital": {
-              "power_on": 3,
-              "power_off": 4
+              "power_on": 25,
+              "power_off": 26
             },
             "ushort": {
               "intensity": 2
@@ -44,8 +44,8 @@
           "Name": "Bed",
           "commands": {
             "digital": {
-              "power_on": 5,
-              "power_off": 6
+              "power_on": 27,
+              "power_off": 28
             },
             "ushort": {
               "intensity": 3
@@ -56,8 +56,8 @@
           "Name": "Desk",
           "commands": {
             "digital": {
-              "power_on": 7,
-              "power_off": 8
+              "power_on": 29,
+              "power_off": 30
             },
             "ushort": {
               "intensity": 4
@@ -68,8 +68,8 @@
           "Name": "Strip Led",
           "commands": {
             "digital": {
-              "power_on": 9,
-              "power_off": 10
+              "power_on": 31,
+              "power_off": 32
             },
             "ushort": {
               "intensity": 5
@@ -92,8 +92,8 @@
           "Name": "Toilet",
           "commands": {
             "digital": {
-              "power_on": 11,
-              "power_off": 12
+              "power_on": 33,
+              "power_off": 34
             },
             "ushort": {
               "intensity": 6
@@ -104,8 +104,8 @@
           "Name": "Mirror",
           "commands": {
             "digital": {
-              "power_on": 13,
-              "power_off": 14
+              "power_on": 35,
+              "power_off": 36
             },
             "ushort": {
               "intensity": 7
@@ -141,11 +141,14 @@
         {         
           "commands": {
               "digital": {
-              "Morning": 300,
-              "Afternoon": 301,
-              "Evening": 302,
-              "Night": 303,
-             "Off": 304
+              "Morning": 1              ,
+              "Afternoon": 2
+              ,
+              "Evening": 3
+              ,
+              "Night": 4
+              ,
+             "Off": 5
             }
           }
         }

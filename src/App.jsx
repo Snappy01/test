@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardBody } from '@heroui/react'
+import { useWebSocket } from './contexts/WebSocketContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Settings from './components/Settings'
@@ -11,34 +12,85 @@ import LightsPresets from './components/LightsPresets'
 import roomConfig from './config/roomConfig.json'
 import './App.css'
 
+/**
+ * COMPOSANT PRINCIPAL DE L'APPLICATION
+ * 
+ * Gère :
+ * - La sélection de zone
+ * - La navigation par catégorie
+ * - Le thème dark/light
+ * - Les presets de lumières
+ * - La configuration WebSocket (URL uniquement, connexion gérée par Context)
+ */
 function App() {
+  // ============================================================
+  // ÉTATS LOCAUX
+  // ============================================================
+  
   const [selectedZone, setSelectedZone] = useState(null)
   const [activeCategory, setActiveCategory] = useState('Lights')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [wsUrl, setWsUrl] = useState('')
-  const [isConnected, setIsConnected] = useState(false)
-  const wsRef = useRef(null)
   const [roomData, setRoomData] = useState(null)
+  
+  // États pour les presets de lumières
   const [lightPresetTrigger, setLightPresetTrigger] = useState(null)
   const [lightPresetValue, setLightPresetValue] = useState(null)
-  const [latestFeedback, setLatestFeedback] = useState(null) // Dernier feedback reçu : { action, id, type, value, timestamp }
+  
+  // Thème dark/light (persisté dans localStorage)
   const [theme, setTheme] = useState(() => {
-    // Récupérer depuis localStorage ou 'dark' par défaut
     return localStorage.getItem('theme') || 'dark'
   })
 
-  // Charger la config quand une zone est sélectionnée
+  // ============================================================
+  // RÉCUPÉRATION DU CONTEXT WEBSOCKET
+  // ============================================================
+  
+  // Récupérer les fonctions et l'état du WebSocketContext
+  // Ces fonctions sont partagées par tous les composants via le Context
+  const { sendCommand, connect, disconnect, isConnected } = useWebSocket()
+
+  // ============================================================
+  // CHARGEMENT DE LA CONFIGURATION DE LA ZONE
+  // ============================================================
+  
+  /**
+   * Charge la configuration de la zone sélectionnée depuis roomConfig.json
+   * Met à jour roomData et wsUrl quand la zone change
+   * Connexion automatique si une URL est disponible
+   */
   useEffect(() => {
     if (selectedZone && roomConfig[selectedZone]) {
       const config = roomConfig[selectedZone]
       setRoomData(config)
-      setWsUrl(config.wsUrl || '')
+      const newWsUrl = config.wsUrl || ''
+      setWsUrl(newWsUrl)
+      
+      // CONNEXION AUTOMATIQUE : Se connecter automatiquement si on a une URL
+      if (newWsUrl) {
+        // Attendre un peu pour que l'état soit mis à jour
+        setTimeout(() => {
+          connect(newWsUrl)
+        }, 100)
+      }
     } else {
       setRoomData(null)
+      setWsUrl('')
+      // Déconnecter si aucune zone n'est sélectionnée
+      disconnect()
     }
-  }, [selectedZone])
+    // Note: On n'inclut pas isConnected dans les dépendances pour éviter les boucles
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedZone, connect, disconnect])
 
-  // Appliquer le thème au chargement et quand il change
+  // ============================================================
+  // GESTION DU THÈME
+  // ============================================================
+  
+  /**
+   * Applique le thème au chargement et quand il change
+   * Ajoute/retire la classe 'dark' sur <html> et sauvegarde dans localStorage
+   */
   useEffect(() => {
     const root = document.documentElement // <html>
     
@@ -48,102 +100,67 @@ function App() {
       root.classList.remove('dark')
     }
     
-    // Sauvegarder dans localStorage
+    // Sauvegarder dans localStorage pour persister entre les sessions
     localStorage.setItem('theme', theme)
   }, [theme])
 
-  // Fonction pour changer le thème
+  /**
+   * Fonction pour changer le thème
+   * @param {string} newTheme - 'dark' ou 'light'
+   */
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme)
   }
 
-  // Gestion WebSocket
+  // ============================================================
+  // GESTION DE LA CONNEXION WEBSOCKET
+  // ============================================================
+  
+  /**
+   * Gère la connexion WebSocket
+   * Utilise la fonction connect() du WebSocketContext
+   */
   const handleConnect = () => {
-    if (!wsUrl) return
-    
-    try {
-      const ws = new WebSocket(wsUrl)
-      
-      ws.onopen = () => {
-        console.log('WebSocket connecté')
-        setIsConnected(true)
-        wsRef.current = ws
-      }
-      
-      ws.onerror = (error) => {
-        console.error('Erreur WebSocket:', error)
-        setIsConnected(false)
-      }
-      
-      ws.onclose = () => {
-        console.log('WebSocket déconnecté')
-        setIsConnected(false)
-        wsRef.current = null
-      }
-      
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data)
-          console.log('Message reçu:', message)
-          
-          // Gérer les feedbacks du serveur
-          if (message.action === 'action_feedback') {
-            // Envoyer le feedback à tous les composants (broadcast)
-            setLatestFeedback({
-              ...message,
-              timestamp: Date.now() // Pour forcer la mise à jour même si la valeur est la même
-            })
-            console.log('Feedback reçu et broadcast:', message)
-          }
-        } catch (error) {
-          console.error('Erreur lors du parsing du message:', error)
-        }
-      }
-    } catch (error) {
-      console.error('Erreur lors de la connexion:', error)
-      setIsConnected(false)
-    }
-  }
-
-  const handleDisconnect = () => {
-    if (wsRef.current) {
-      wsRef.current.close()
-      wsRef.current = null
-    }
-    setIsConnected(false)
-  }
-
-  // Nettoyer la connexion WebSocket au démontage
-  useEffect(() => {
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close()
-      }
-    }
-  }, [])
-
-  // Envoyer une commande via WebSocket
-  const handleCommand = (type, commandId, value) => {
-    if (!isConnected || !wsRef.current) {
-      console.warn('WebSocket non connecté - commande simulée:', { type, commandId, value })
+    if (!wsUrl) {
+      console.warn('URL WebSocket manquante')
       return
     }
-
-    const message = {
-      type,
-      command: commandId,
-      value: value !== null ? value : undefined
-    }
-
-    try {
-      wsRef.current.send(JSON.stringify(message))
-      console.log('Commande envoyée:', message)
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi de la commande:', error)
-    }
+    // La connexion est gérée par le WebSocketContext
+    connect(wsUrl)
   }
 
-  // Mapper les catégories
+  /**
+   * Gère la déconnexion WebSocket
+   * Utilise la fonction disconnect() du WebSocketContext
+   */
+  const handleDisconnect = () => {
+    disconnect()
+  }
+
+  // ============================================================
+  // GESTION DES COMMANDES
+  // ============================================================
+  
+  /**
+   * Envoie une commande au serveur via WebSocket
+   * Utilise la fonction sendCommand() du WebSocketContext
+   * 
+   * @param {string} type - Type de commande: 'digital', 'ushort', ou 'string'
+   * @param {number} commandId - ID de la commande
+   * @param {*} value - Valeur de la commande (null pour digital)
+   */
+  const handleCommand = (type, commandId, value) => {
+    // La fonction sendCommand du Context gère déjà le mode offline
+    sendCommand(type, commandId, value)
+  }
+
+  // ============================================================
+  // MAPPING DES CATÉGORIES
+  // ============================================================
+  
+  /**
+   * Mappe les noms de catégories de l'UI vers les clés dans roomConfig.json
+   */
   const categoryMap = {
     'Lights': 'Lights',
     'Blinds': 'Blinds',
@@ -151,7 +168,14 @@ function App() {
     'ACs': 'ACs'
   }
 
-  // Obtenir les devices de la catégorie active
+  // ============================================================
+  // RÉCUPÉRATION DES DEVICES ET PRESETS
+  // ============================================================
+  
+  /**
+   * Récupère les devices de la catégorie active
+   * @returns {Array} - Liste des devices de la catégorie active
+   */
   const getActiveDevices = () => {
     if (!roomData || !roomData.devices) return []
     const categoryKey = categoryMap[activeCategory]
@@ -160,7 +184,10 @@ function App() {
 
   const activeDevices = getActiveDevices()
 
-  // Obtenir les presets de lumières
+  /**
+   * Récupère les presets de lumières pour la zone active
+   * @returns {Object|null} - Configuration des presets ou null
+   */
   const getLightPresets = () => {
     if (!roomData || !roomData.devices) return null
     return roomData.devices.lightPresets?.[0] || null
@@ -168,13 +195,26 @@ function App() {
 
   const lightPresets = getLightPresets()
 
-  // Gérer la sélection d'un preset de lumière
+  // ============================================================
+  // GESTION DES PRESETS DE LUMIÈRES
+  // ============================================================
+  
+  /**
+   * Gère la sélection d'un preset de lumière
+   * 
+   * Mode connecté : envoie directement la commande au serveur
+   * Mode offline : applique les valeurs manuellement aux devices
+   * 
+   * @param {string} presetName - Nom du preset: 'Morning', 'Afternoon', 'Evening', 'Off'
+   * @param {number} commandId - ID de la commande du preset
+   */
   const handleLightPresetSelect = (presetName, commandId) => {
     if (isConnected) {
-      // Mode connecté : envoyer directement la commande au serveur
+      // Mode connecté : le serveur gère le preset
+      // Envoie uniquement la commande du preset
       handleCommand('digital', commandId, null)
     } else {
-      // Mode simulation : appliquer les valeurs manuellement
+      // Mode simulation : applique les valeurs manuellement
       const presetValues = {
         'Morning': 80,
         'Afternoon': 60,
@@ -184,6 +224,7 @@ function App() {
       
       const value = presetValues[presetName]
       if (value !== undefined) {
+        // Déclencher la mise à jour des composants LightsCard via les props
         setLightPresetValue(value)
         setLightPresetTrigger(prev => (prev === null ? 0 : prev + 1))
         
@@ -259,11 +300,10 @@ function App() {
                   <LightsCard
                     key={`${device.Name}-${index}`}
                     device={device}
-                    onCommand={handleCommand}
-                    isConnected={isConnected}
                     presetValue={lightPresetValue}
                     presetTrigger={lightPresetTrigger}
-                    latestFeedback={latestFeedback}
+                    // Note: onCommand, isConnected et latestFeedback ne sont plus passés
+                    // Ils sont maintenant récupérés via useWebSocket() et useDeviceFeedback()
                   />
                 )
             case 'Blinds':
@@ -271,9 +311,8 @@ function App() {
                 <BlindsCard
                   key={`${device.Name}-${index}`}
                   device={device}
-                  onCommand={handleCommand}
-                  isConnected={isConnected}
-                  latestFeedback={latestFeedback}
+                  // Note: onCommand, isConnected et latestFeedback ne sont plus passés
+                  // Ils sont maintenant récupérés via useWebSocket() et useDeviceFeedback()
                 />
               )
             case 'AudioZones':
@@ -281,9 +320,8 @@ function App() {
                 <AudioCard
                   key={`${device.Name}-${index}`}
                   device={device}
-                  onCommand={handleCommand}
-                  isConnected={isConnected}
-                  latestFeedback={latestFeedback}
+                  // Note: onCommand, isConnected et latestFeedback ne sont plus passés
+                  // Ils sont maintenant récupérés via useWebSocket() et useDeviceFeedback()
                 />
               )
             case 'ACs':
@@ -295,9 +333,8 @@ function App() {
                 <HVACCard
                   key={`${device.Name}-${index}`}
                   device={device}
-                  onCommand={handleCommand}
-                  isConnected={isConnected}
-                  latestFeedback={latestFeedback}
+                  // Note: onCommand, isConnected et latestFeedback ne sont plus passés
+                  // Ils sont maintenant récupérés via useWebSocket() et useDeviceFeedback()
                 />
                 </div>
               )

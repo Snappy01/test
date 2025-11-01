@@ -1,17 +1,51 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Switch } from '@heroui/react'
+import { useWebSocket } from '../contexts/WebSocketContext'
 
-const Settings = ({ isOpen, onOpenChange, wsUrl, onWsUrlChange, onConnect, onDisconnect, isConnected, theme, onThemeChange }) => {
+/**
+ * COMPOSANT MODAL DE RÉGLAGES
+ * 
+ * Permet de :
+ * - Configurer l'URL WebSocket
+ * - Se connecter/déconnecter au serveur
+ * - Changer le thème dark/light
+ * 
+ * Note: Les fonctions connect, disconnect et l'état isConnected
+ * sont maintenant récupérés du WebSocketContext via useWebSocket()
+ */
+const Settings = ({ isOpen, onOpenChange, wsUrl, onWsUrlChange, theme, onThemeChange }) => {
+  // État local pour l'URL WebSocket (dans le champ input)
   const [localWsUrl, setLocalWsUrl] = useState(wsUrl)
 
+  // Récupérer les fonctions et l'état du WebSocketContext
+  const { connect, disconnect, isConnected } = useWebSocket()
+
+  // Synchroniser localWsUrl avec wsUrl quand il change (depuis App.jsx)
+  useEffect(() => {
+    setLocalWsUrl(wsUrl)
+  }, [wsUrl])
+
+  /**
+   * Gère la connexion au serveur WebSocket
+   * Met à jour l'URL dans App.jsx puis connecte
+   */
   const handleConnect = () => {
+    // Mettre à jour l'URL dans App.jsx
     onWsUrlChange(localWsUrl)
-    onConnect()
+    // Se connecter via le Context
+    connect(localWsUrl)
+    // Fermer le modal
     onOpenChange(false)
   }
 
+  /**
+   * Gère la déconnexion du serveur WebSocket
+   * Déconnecte puis ferme le modal
+   */
   const handleDisconnect = () => {
-    onDisconnect()
+    // Se déconnecter via le Context
+    disconnect()
+    // Fermer le modal
     onOpenChange(false)
   }
 
