@@ -38,25 +38,25 @@ const HVACCard = ({ device, onCommand, isConnected, latestFeedback }) => {
   }
 
   return (
-    <Card className=" bg-blue-800/50 border border-blue-600/50">
+    <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
       <CardBody className="p-4">
         <div className="flex flex-col gap-4">
-          <h3 className="text-base sm:text-lg font-semibold text-white text-center">{device.Name}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white text-center">{device.Name}</h3>
           
           <div className="flex items-center justify-center gap-2 sm:gap-4">
             <div className="flex flex-col items-center">
-              <span className="text-xs text-gray-400">Actuelle</span>
-              <span className="text-2xl sm:text-3xl font-bold text-white">{currentTemp}°C</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Actuelle</span>
+              <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{currentTemp}°C</span>
             </div>
-            <div className="text-gray-500">→</div>
+            <div className="text-gray-400 dark:text-gray-500">→</div>
             <div className="flex flex-col items-center">
-              <span className="text-xs text-gray-400">Cible</span>
-              <span className="text-2xl sm:text-3xl font-bold text-blue-400">{targetTemp}°C</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Cible</span>
+              <span className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{targetTemp}°C</span>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between text-sm text-gray-300">
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
               <span>Température cible</span>
               <span>{targetTemp}°C</span>
             </div>

@@ -31,10 +31,10 @@ const LightsPresets = ({ presets, onPresetSelect, isConnected }) => {
         selectedKey={selectedKey}
         classNames={{
           base: "w-full",
-          tabList: "gap-2 sm:gap-4 w-full relative rounded-none p-0 border-b border-blue-700/50 justify-center",
-          cursor: "w-full bg-blue-500",
+          tabList: "gap-2 sm:gap-4 w-full relative rounded-none p-0 border-b border-gray-300 dark:border-blue-700/50 justify-center",
+          cursor: "w-full bg-blue-400 dark:bg-blue-500",
           tab: "max-w-fit px-3 sm:px-6 h-10 sm:h-12",
-          tabContent: "group-data-[selected=true]:text-blue-400 text-gray-400 text-sm sm:text-base font-semibold"
+          tabContent: "group-data-[selected=true]:text-blue-600 dark:group-data-[selected=true]:text-blue-400 text-gray-600 dark:text-gray-400 text-sm sm:text-base font-semibold"
         }}
       >
         <Tab

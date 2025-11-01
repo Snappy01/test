@@ -22,6 +22,10 @@ function App() {
   const [lightPresetTrigger, setLightPresetTrigger] = useState(null)
   const [lightPresetValue, setLightPresetValue] = useState(null)
   const [latestFeedback, setLatestFeedback] = useState(null) // Dernier feedback reçu : { action, id, type, value, timestamp }
+  const [theme, setTheme] = useState(() => {
+    // Récupérer depuis localStorage ou 'dark' par défaut
+    return localStorage.getItem('theme') || 'dark'
+  })
 
   // Charger la config quand une zone est sélectionnée
   useEffect(() => {
@@ -33,6 +37,25 @@ function App() {
       setRoomData(null)
     }
   }, [selectedZone])
+
+  // Appliquer le thème au chargement et quand il change
+  useEffect(() => {
+    const root = document.documentElement // <html>
+    
+    if (theme === 'dark') {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+    
+    // Sauvegarder dans localStorage
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  // Fonction pour changer le thème
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme)
+  }
 
   // Gestion WebSocket
   const handleConnect = () => {
@@ -192,9 +215,9 @@ function App() {
     if (!roomData || !selectedZone) {
       return (
         <div className="flex items-center justify-center h-full">
-          <Card className="bg-blue-800/50 border border-blue-600/50">
+          <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
             <CardBody className="p-8">
-              <p className="text-gray-400 text-center text-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-center text-lg">
                 Veuillez sélectionner une zone pour commencer
               </p>
             </CardBody>
@@ -206,9 +229,9 @@ function App() {
     if (activeDevices.length === 0) {
       return (
         <div className="flex items-center justify-center h-full">
-          <Card className="bg-blue-800/50 border border-blue-600/50">
+          <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
             <CardBody className="p-8">
-              <p className="text-gray-400 text-center text-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-center text-lg">
                 Aucun appareil {activeCategory.toLowerCase()} disponible dans cette zone
               </p>
             </CardBody>
@@ -288,7 +311,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-blue-900">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-blue-900">
       <Header
         selectedZone={selectedZone}
         onZoneSelect={setSelectedZone}
@@ -315,6 +338,8 @@ function App() {
         onConnect={handleConnect}
         onDisconnect={handleDisconnect}
         isConnected={isConnected}
+        theme={theme}
+        onThemeChange={handleThemeChange}
       />
     </div>
   )

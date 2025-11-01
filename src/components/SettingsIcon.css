@@ -1,0 +1,33 @@
+.settings-gear-icon {
+  transform-origin: center;
+}
+
+/* Rotation continue de la roue crantée */
+.gear-rotating {
+  transform-origin: 12px 12px;
+  animation: rotate-gear 3s linear infinite;
+}
+
+/* Accélération au survol */
+.settings-gear-icon:hover .gear-rotating {
+  animation: rotate-gear-fast 1s linear infinite;
+}
+
+@keyframes rotate-gear {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate-gear-fast {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+

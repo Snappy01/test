@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button, Drawer, DrawerContent, DrawerHeader, DrawerBody, Accordion, AccordionItem } from '@heroui/react'
 import SplitText from './SplitText'
+import SettingsIcon from './SettingsIcon'
 
 const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -26,7 +27,7 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
   }
 
   return (
-    <header className="bg-blue-900 text-white p-3 sm:p-4 grid grid-cols-3 items-center gap-2 sm:gap-4 sticky top-0 z-50">
+    <header className="bg-blue-600 dark:bg-blue-900 text-white p-3 sm:p-4 grid grid-cols-3 items-center gap-2 sm:gap-4 sticky top-0 z-50">
      
        {/* Bouton Drawer */}
        <Button
@@ -57,44 +58,41 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
          
         />
         ) : (
-          <h2 className="text-sm sm:text-xl font-bold text-gray-400">Aucune zone sélectionnée</h2>
+          <h2 className="text-sm sm:text-xl font-bold text-gray-300 dark:text-gray-400">Aucune zone sélectionnée</h2>
         )}
       </div>
 
       {/* Bouton Réglages */}
-      <div className="justify-self-end">
-      <Button
-        color="secondary"
-        variant="flat"
-        onPress={() => onSettingsOpen(true)}
-        className="text-white min-w-[40px] sm:min-w-[50px]"
-        isIconOnly
-        size="sm"
-        aria-label="Réglages"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3m15.364 6.364l-4.243-4.243m-4.242 0l-4.243 4.243m8.485 0l-4.242-4.242m0 8.485l-4.243-4.243"></path>
-        </svg>
-      </Button>
+      <div className="flex justify-end">
+        <Button
+          color="secondary"
+          variant="flat"
+          onPress={() => onSettingsOpen(true)}
+          className="text-white min-w-[40px] sm:min-w-[50px]"
+          isIconOnly
+          size="sm"
+          aria-label="Réglages"
+        >
+          <SettingsIcon className="w-5 h-5" />
+        </Button>
       </div>
       {/* Drawer */}
       <Drawer isOpen={isOpen} onOpenChange={setIsOpen} placement="left">
-        <DrawerContent className="max-w-[40vh] sm:max-w-sm">
-          <DrawerHeader className="bg-blue-800 text-white">
+        <DrawerContent className="max-w-[40vh] sm:max-w-sm bg-white dark:bg-blue-900">
+          <DrawerHeader className="bg-blue-500 dark:bg-blue-800 text-white">
             <h2 className="text-2xl font-bold">Select Zone</h2>
           </DrawerHeader>
-          <DrawerBody className="bg-blue-900">
-            <Accordion selectionMode="single"  className="text-white">
+          <DrawerBody className="bg-white dark:bg-blue-900">
+            <Accordion selectionMode="single" className="text-gray-900 dark:text-white">
               {zones.map((section, index) => (
                 <AccordionItem
                   key={index}
                   title={section.title}
-                  className="text-white"
+                  className="text-gray-900 dark:text-white"
                   classNames={{
-                    title: "text-white",
-                    indicator: "text-white",
-                    content: "text-white"
+                    title: "text-gray-900 dark:text-white",
+                    indicator: "text-gray-900 dark:text-white",
+                    content: "text-gray-900 dark:text-white"
                   }}
                 >
                   <div className="flex flex-col gap-2">
@@ -102,7 +100,7 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
                       <Button
                         key={itemIndex}
                         variant="light"
-                        className="justify-start text-white hover:bg-blue-700"
+                        className="justify-start text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-blue-700"
                         onPress={() => handleZoneClick(item)}
                       >
                         {item}

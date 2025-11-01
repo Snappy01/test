@@ -5,8 +5,12 @@
 @plugin "./hero.ts";
 
 html, body {
-  background-color: #000000 !important;
- 
+  background-color: #f9fafb; /* gray-50 pour light mode */
+}
+
+.dark html,
+.dark body {
+  background-color: #000000 !important; /* noir pour dark mode */
 }
 
 

@@ -38,10 +38,10 @@ const BlindsCard = ({ device, onCommand, isConnected, latestFeedback }) => {
   }
 
   return (
-    <Card className="bg-blue-800/50 border border-blue-600/50">
+    <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
       <CardBody className="p-4">
         <div className="flex flex-col gap-4">
-          <h3 className="text-base sm:text-lg font-semibold text-white text-center">{device.Name}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white text-center">{device.Name}</h3>
           
           <ButtonGroup 
             className="w-full" 

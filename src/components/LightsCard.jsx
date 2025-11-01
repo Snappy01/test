@@ -75,27 +75,27 @@ const LightsCard = ({ device, onCommand, isConnected, presetValue, presetTrigger
   }
 
   return (
-    <Card className="bg-blue-800/50 border border-blue-600/50">
+    <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
       <CardBody className="p-4">
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-base sm:text-lg font-semibold text-white truncate flex-1">{device.Name}</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate flex-1">{device.Name}</h3>
             <Switch
               isSelected={isOn}
               onValueChange={handleToggle}
               color="success"
               size="sm"
               classNames={{
-                label: "text-white text-xs sm:text-sm"
+                label: "text-gray-900 dark:text-white text-xs sm:text-sm"
               }}
             >
-              <span className="text-white text-xs sm:text-sm whitespace-nowrap">{isOn ? 'ON' : 'OFF'}</span>
+              <span className="text-gray-900 dark:text-white text-xs sm:text-sm whitespace-nowrap">{isOn ? 'ON' : 'OFF'}</span>
             </Switch>
           </div>
           
           {device.commands?.ushort?.intensity && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between text-sm text-gray-300">
+              <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
                 <span>Intensité</span>
                 <span>{intensity}%</span>
               </div>

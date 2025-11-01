@@ -9,7 +9,7 @@ const Footer = ({ activeCategory, onCategoryChange }) => {
   ]
 
   return (
-    <footer className="bg-blue-900/95 backdrop-blur-sm border-t border-blue-700/50 sticky bottom-0 z-40 safe-area-bottom">
+    <footer className="bg-blue-600/95 dark:bg-blue-900/95 backdrop-blur-sm border-t border-blue-500/50 dark:border-blue-700/50 sticky bottom-0 z-40 safe-area-bottom">
       <div className="px-4 py-3">
         <ButtonGroup 
           className="w-full justify-center"
@@ -23,8 +23,8 @@ const Footer = ({ activeCategory, onCategoryChange }) => {
               onPress={() => onCategoryChange(category.id)}
               className={`flex-1 flex flex-col items-center gap-1 min-h-[60px] ${
                 activeCategory === category.id 
-                  ? 'bg-blue-600' 
-                  : 'bg-blue-800/50 hover:bg-blue-700/50'
+                  ? 'bg-blue-500 dark:bg-blue-600' 
+                  : 'bg-blue-400/50 dark:bg-blue-800/50 hover:bg-blue-300/50 dark:hover:bg-blue-700/50'
               }`}
               variant={activeCategory === category.id ? 'solid' : 'flat'}
             >
