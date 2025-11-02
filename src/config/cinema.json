@@ -1,0 +1,127 @@
+{
+  "zoneId": 6,
+  "roomName": "Cinema",
+  "wsUrl": "ws://172.16.80.104:9899/server",
+  "devices": {
+    "Lights": [
+      {
+        "Name": "Ambient",
+        "commands": {
+          "digital": {
+            "power_on": 1,
+            "power_off": 2
+          },
+          "ushort": {
+            "intensity": 1
+          }
+        }
+      },
+      {
+        "Name": "Step Lights",
+        "commands": {
+          "digital": {
+            "power_on": 3,
+            "power_off": 4
+          },
+          "ushort": {
+            "intensity": 2
+          }
+        }
+      },
+      {
+        "Name": "Reading",
+        "commands": {
+          "digital": {
+            "power_on": 5,
+            "power_off": 6
+          },
+          "ushort": {
+            "intensity": 3
+          }
+        }
+      },
+      {
+        "Name": "Wall Sconces",
+        "commands": {
+          "digital": {
+            "power_on": 7,
+            "power_off": 8
+          },
+          "ushort": {
+            "intensity": 4
+          }
+        }
+      },
+      {
+        "Name": "Strip Led",
+        "commands": {
+          "digital": {
+            "power_on": 9,
+            "power_off": 10
+          },
+          "ushort": {
+            "intensity": 5
+          }
+        }
+      }
+    ],
+    "lightPresets": [
+      {
+        "commands": {
+          "digital": {
+            "Movie": 1,
+            "Watch": 2,
+            "Reading": 3,
+            "Off": 4
+          }
+        }
+      }
+    ],
+    "Blinds": [
+      {
+        "Name": "Blackout",
+        "commands": {
+          "digital": {
+            "power_up": 100,
+            "stop": 101,
+            "power_down": 102
+          }
+        }
+      }
+    ],
+    "AudioZones": [
+      {
+        "Name": "Surround",
+        "commands": {
+          "digital": {
+            "mute_on": 202,
+            "mute_off": 203
+          },
+          "ushort": {
+            "volume": 200,
+            "subwoofer_level": 202
+          }
+        }
+      }
+    ],
+    "ACs": [
+      {
+        "Name": "AC",
+        "commands": {
+          "ushort": {
+            "temperature": 400,
+            "current_temperature": 401
+          }
+        }
+      }
+    ],
+    "Global": {
+      "commands": {
+        "digital": {
+          "power_on": 80,
+          "power_off": 81
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Card, CardBody } from '@heroui/react'
+import { Card, CardBody, Spinner } from '@heroui/react'
 import { useWebSocket } from './contexts/WebSocketContext'
+import { feedbackStore } from './stores/FeedbackStore'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Settings from './components/Settings'
@@ -9,7 +10,7 @@ import BlindsCard from './components/BlindsCard'
 import AudioCard from './components/AudioCard'
 import HVACCard from './components/HVACCard'
 import LightsPresets from './components/LightsPresets'
-import roomConfig from './config/roomConfig.json'
+import zonesData from './config/zones.json'
 import './App.css'
 
 /**
@@ -32,10 +33,14 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [wsUrl, setWsUrl] = useState('')
   const [roomData, setRoomData] = useState(null)
+  const [isLoadingZone, setIsLoadingZone] = useState(false)
   
   // États pour les presets de lumières
   const [lightPresetTrigger, setLightPresetTrigger] = useState(null)
   const [lightPresetValue, setLightPresetValue] = useState(null)
+  
+  // Mapping displayName → zoneId (créé au démarrage)
+  const [zoneIdMap, setZoneIdMap] = useState(null)
   
   // Thème dark/light (persisté dans localStorage)
   const [theme, setTheme] = useState(() => {
@@ -51,37 +56,114 @@ function App() {
   const { sendCommand, connect, disconnect, isConnected } = useWebSocket()
 
   // ============================================================
+  // INITIALISATION DU MAPPING DISPLAYNAME → ZONEID
+  // ============================================================
+  
+  /**
+   * Crée le mapping displayName → zoneId au démarrage
+   * Ce mapping permet de trouver le zoneId à partir du displayName (selectedZone)
+   */
+  useEffect(() => {
+    const map = {}
+    zonesData.forEach(zone => {
+      map[zone.displayName] = zone.zoneId
+    })
+    setZoneIdMap(map)
+  }, [])
+  
+  // ============================================================
   // CHARGEMENT DE LA CONFIGURATION DE LA ZONE
   // ============================================================
   
   /**
-   * Charge la configuration de la zone sélectionnée depuis roomConfig.json
-   * Met à jour roomData et wsUrl quand la zone change
-   * Connexion automatique si une URL est disponible
+   * Charge dynamiquement la configuration de la zone sélectionnée
+   * - Trouve le zoneId correspondant au displayName (selectedZone)
+   * - Charge le fichier JSON correspondant de manière asynchrone
+   * - Met à jour roomData et wsUrl quand la zone change
+   * - Connexion automatique si une URL est disponible
+   * - Vide le FeedbackStore lors du changement de zone
    */
   useEffect(() => {
-    if (selectedZone && roomConfig[selectedZone]) {
-      const config = roomConfig[selectedZone]
-      setRoomData(config)
-      const newWsUrl = config.wsUrl || ''
-      setWsUrl(newWsUrl)
-      
-      // CONNEXION AUTOMATIQUE : Se connecter automatiquement si on a une URL
-      if (newWsUrl) {
-        // Attendre un peu pour que l'état soit mis à jour
-        setTimeout(() => {
-          connect(newWsUrl)
-        }, 100)
+    // Si pas de mapping encore ou pas de zone sélectionnée
+    if (!zoneIdMap || !selectedZone) {
+      if (!selectedZone) {
+        setRoomData(null)
+        setWsUrl('')
+        setIsLoadingZone(false)
+        // Déconnecter si aucune zone n'est sélectionnée
+        disconnect()
+        // Vider le FeedbackStore quand on désélectionne une zone
+        feedbackStore.clear()
       }
-    } else {
+      return
+    }
+    
+    // Trouver le zoneId correspondant au displayName
+    const zoneId = zoneIdMap[selectedZone]
+    if (!zoneId) {
+      console.error(`Zone non trouvée: ${selectedZone}`)
       setRoomData(null)
       setWsUrl('')
-      // Déconnecter si aucune zone n'est sélectionnée
-      disconnect()
+      setIsLoadingZone(false)
+      return
     }
+    
+    // Fonction pour charger la config de la zone
+    const loadZoneConfig = async () => {
+      setIsLoadingZone(true)
+      
+      try {
+        // Déconnecter de l'ancienne zone (silent = true pour éviter la notification)
+        // et vider le FeedbackStore
+        disconnect(true)
+        feedbackStore.clear()
+        
+        // Trouver la zone dans zonesData pour récupérer le fileName
+        const zoneInfo = zonesData.find(zone => zone.zoneId === zoneId)
+        if (!zoneInfo || !zoneInfo.fileName) {
+          throw new Error(`Zone ou fileName non trouvé pour zoneId: ${zoneId}`)
+        }
+        
+        // Charger dynamiquement le fichier JSON (fileName contient déjà l'extension .json)
+        const configModule = await import(`./config/${zoneInfo.fileName}`)
+        const config = configModule.default
+        
+        // Vérifier que le zoneId correspond
+        if (config.zoneId !== zoneId) {
+          throw new Error(`zoneId mismatch: attendu ${zoneId}, trouvé ${config.zoneId}`)
+        }
+        
+        // Mettre à jour les états
+        setRoomData(config)
+        const newWsUrl = config.wsUrl || ''
+        setWsUrl(newWsUrl)
+        
+        // Réinitialiser les presets de lumières
+        setLightPresetValue(null)
+        setLightPresetTrigger(null)
+        
+        // CONNEXION AUTOMATIQUE : Se connecter automatiquement si on a une URL
+        if (newWsUrl) {
+          // Attendre un peu pour que l'état soit mis à jour
+          setTimeout(() => {
+            connect(newWsUrl)
+          }, 100)
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de la configuration de la zone:', error)
+        setRoomData(null)
+        setWsUrl('')
+        // Afficher un message d'erreur à l'utilisateur si nécessaire
+      } finally {
+        setIsLoadingZone(false)
+      }
+    }
+    
+    loadZoneConfig()
+    
     // Note: On n'inclut pas isConnected dans les dépendances pour éviter les boucles
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedZone, connect, disconnect])
+  }, [selectedZone, zoneIdMap, connect, disconnect])
 
   // ============================================================
   // GESTION DU THÈME
@@ -90,6 +172,7 @@ function App() {
   /**
    * Applique le thème au chargement et quand il change
    * Ajoute/retire la classe 'dark' sur <html> et sauvegarde dans localStorage
+   * Met à jour la meta tag theme-color pour correspondre au header
    */
   useEffect(() => {
     const root = document.documentElement // <html>
@@ -102,6 +185,21 @@ function App() {
     
     // Sauvegarder dans localStorage pour persister entre les sessions
     localStorage.setItem('theme', theme)
+    
+    // Mettre à jour la meta tag theme-color pour correspondre au fond du MainContent
+    // bg-gray-50 (light) = #f9fafb, bg-blue-900 (dark) =rgb(16, 33, 78)
+    const themeColor = theme === 'dark' ? '#011631' : '#f9fafb'
+    let themeColorMeta = document.querySelector('meta[name="theme-color"]')
+    
+    if (!themeColorMeta) {
+      // Créer la meta tag si elle n'existe pas
+      themeColorMeta = document.createElement('meta')
+      themeColorMeta.setAttribute('name', 'theme-color')
+      document.head.appendChild(themeColorMeta)
+    }
+    
+    // Mettre à jour la couleur
+    themeColorMeta.setAttribute('content', themeColor)
   }, [theme])
 
   /**
@@ -253,13 +351,29 @@ function App() {
 
   // Rendre les cards selon la catégorie
   const renderDeviceCards = () => {
-    if (!roomData || !selectedZone) {
+    if (!selectedZone) {
       return (
         <div className="flex items-center justify-center h-full">
           <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
             <CardBody className="p-8">
               <p className="text-gray-600 dark:text-gray-400 text-center text-lg">
                 Veuillez sélectionner une zone pour commencer
+              </p>
+            </CardBody>
+          </Card>
+        </div>
+      )
+    }
+    
+    // Afficher un loader pendant le chargement de la config
+    if (isLoadingZone || !roomData) {
+      return (
+        <div className="flex items-center justify-center h-full min-h-[400px]">
+          <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
+            <CardBody className="p-8 flex flex-col items-center gap-4">
+              <Spinner size="lg" color="primary" />
+              <p className="text-gray-600 dark:text-gray-400 text-center text-lg">
+                Chargement de la zone...
               </p>
             </CardBody>
           </Card>

@@ -1,0 +1,151 @@
+{
+  "zoneId": 4,
+  "roomName": "Salon",
+  "wsUrl": "ws://172.16.80.104:9899/server",
+  "devices": {
+    "Lights": [
+      {
+        "Name": "Main",
+        "commands": {
+          "digital": {
+            "power_on": 1,
+            "power_off": 2
+          },
+          "ushort": {
+            "intensity": 1
+          }
+        }
+      },
+      {
+        "Name": "Ambient",
+        "commands": {
+          "digital": {
+            "power_on": 3,
+            "power_off": 4
+          },
+          "ushort": {
+            "intensity": 2
+          }
+        }
+      },
+      {
+        "Name": "Accent",
+        "commands": {
+          "digital": {
+            "power_on": 5,
+            "power_off": 6
+          },
+          "ushort": {
+            "intensity": 3
+          }
+        }
+      },
+      {
+        "Name": "Reading",
+        "commands": {
+          "digital": {
+            "power_on": 7,
+            "power_off": 8
+          },
+          "ushort": {
+            "intensity": 4
+          }
+        }
+      },
+      {
+        "Name": "TV Backlight",
+        "commands": {
+          "digital": {
+            "power_on": 9,
+            "power_off": 10
+          },
+          "ushort": {
+            "intensity": 5
+          }
+        }
+      },
+      {
+        "Name": "Dining",
+        "commands": {
+          "digital": {
+            "power_on": 11,
+            "power_off": 12
+          },
+          "ushort": {
+            "intensity": 6
+          }
+        }
+      },
+      {
+        "Name": "Strip Led",
+        "commands": {
+          "digital": {
+            "power_on": 13,
+            "power_off": 14
+          },
+          "ushort": {
+            "intensity": 7
+          }
+        }
+      }
+    ],
+    "lightPresets": [
+      {
+        "commands": {
+          "digital": {
+            "Morning": 1,
+            "Afternoon": 2,
+            "Evening": 3,
+            "Night": 4,
+            "Off": 5
+          }
+        }
+      }
+    ],
+    "Blinds": [
+      {
+        "Name": "Large Window",
+        "commands": {
+          "digital": {
+            "power_up": 100,
+            "stop": 101,
+            "power_down": 102
+          }
+        }
+      }
+    ],
+    "AudioZones": [
+      {
+        "Name": "Main Zone",
+        "commands": {
+          "digital": {
+            "mute_on": 202,
+            "mute_off": 203
+          },
+          "ushort": {
+            "volume": 200
+          }
+        }
+      }
+    ],
+    "ACs": [
+      {
+        "Name": "Main AC",
+        "commands": {
+          "ushort": {
+            "temperature": 400,
+            "current_temperature": 401
+          }
+        }
+      }
+    ],
+    "Global": {
+      "commands": {
+        "digital": {
+          "power_on": 80,
+          "power_off": 81
+        }
+      }
+    }
+  }
+}

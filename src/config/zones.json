@@ -1,0 +1,38 @@
+[
+  {
+    "zoneId": 1,
+    "displayName": "Chambre Maitre",
+    "floor": "1er Etage",
+    "fileName": "chambre-maitre.json"
+  },
+  {
+    "zoneId": 2,
+    "displayName": "SDB",
+    "floor": "1er Etage",
+    "fileName": "sdb.json"
+  },
+  {
+    "zoneId": 3,
+    "displayName": "ChambreEnfant",
+    "floor": "1er Etage",
+    "fileName": "chambre-enfant.json"
+  },
+  {
+    "zoneId": 4,
+    "displayName": "Salon",
+    "floor": "RDC",
+    "fileName": "salon.json"
+  },
+  {
+    "zoneId": 5,
+    "displayName": "Cuisine",
+    "floor": "RDC",
+    "fileName": "cuisine.json"
+  },
+  {
+    "zoneId": 6,
+    "displayName": "Cinema",
+    "floor": "SSOL",
+    "fileName": "cinema.json"
+  }
+]

@@ -88,10 +88,7 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
 
     // Vérifier le feedback power_off (ID 20 par exemple)
     if (feedbacks[powerOffId]?.value === true) {
-      setIsOn(false)
-      if (!isDraggingIntensityRef.current) {
-        setIntensity(0)
-      }
+      setIsOn(false)     
     }
   }, [feedbacks, intensityId, powerOnId, powerOffId, intensity])
 

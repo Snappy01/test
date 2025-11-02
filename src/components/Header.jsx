@@ -1,25 +1,29 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button, Drawer, DrawerContent, DrawerHeader, DrawerBody, Accordion, AccordionItem } from '@heroui/react'
 import SplitText from './SplitText'
 import SettingsIcon from './SettingsIcon'
+import zonesData from '../config/zones.json'
 
 const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const zones = [
-    {
-      title: '1er Etage',
-      items: ['Chambre Maitre', 'SDB', 'ChambreEnfant']
-    },
-    {
-      title: 'RDC',
-      items: ['Salon', 'Cuisine']
-    },
-    {
-      title: 'SSOL',
-      items: ['Cinema']
-    }
-  ]
+  // Organiser les zones par étage depuis zones.json
+  const zones = useMemo(() => {
+    const zonesByFloor = {}
+    
+    zonesData.forEach(zone => {
+      if (!zonesByFloor[zone.floor]) {
+        zonesByFloor[zone.floor] = []
+      }
+      zonesByFloor[zone.floor].push(zone.displayName)
+    })
+    
+    // Convertir en format attendu par l'UI
+    return Object.keys(zonesByFloor).map(floor => ({
+      title: floor,
+      items: zonesByFloor[floor]
+    }))
+  }, [])
 
   const handleZoneClick = (zone) => {
     onZoneSelect(zone)
@@ -27,10 +31,9 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
   }
 
   return (
-    <header className="bg-blue-600 dark:bg-blue-900 text-white p-3 sm:p-4 grid grid-cols-3 items-center gap-2 sm:gap-4 sticky top-0 z-50">
-     
-       {/* Bouton Drawer */}
-       <Button
+    <header className="bg-blue-600 dark:bg-blue-900 text-white px-3 pb-3 sm:px-4 sm:pb-4 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] sm:pt-4 grid grid-cols-3 items-center gap-2 sm:gap-4 sticky top-0 z-50">
+      {/* Bouton Drawer */}
+      <Button
         color="primary"
         variant="flat"
         onPress={() => setIsOpen(true)}
@@ -40,23 +43,23 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
         <span className="hidden sm:inline">Select Zone</span>
         <span className="sm:hidden">Zone</span>
       </Button>
-      
+
       {/* Titre de la zone sélectionnée au centre */}
       <div className="min-w-0 text-center">
         {selectedZone ? (
           <SplitText
-          text={selectedZone}
-          className="text-lg sm:text-2xl font-semibold text-center truncate"
-          delay={100}
-          duration={0.6}
-          ease="power3.out"
-          splitType="chars"
-          from={{ opacity: 0, y: 40 }}
-          to={{ opacity: 1, y: 0 }}
-          threshold={0.1}       
-          textAlign="center"
-         
-        />
+            key={selectedZone}
+            text={selectedZone}
+            className="text-lg sm:text-2xl font-semibold text-center truncate"
+            delay={100}
+            duration={0.6}
+            ease="power3.out"
+            splitType="chars"
+            from={{ opacity: 0, y: 40 }}
+            to={{ opacity: 1, y: 0 }}
+            threshold={0.1}
+            textAlign="center"
+          />
         ) : (
           <h2 className="text-sm sm:text-xl font-bold text-gray-300 dark:text-gray-400">Aucune zone sélectionnée</h2>
         )}
@@ -84,9 +87,9 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
           </DrawerHeader>
           <DrawerBody className="bg-white dark:bg-blue-900">
             <Accordion selectionMode="single" className="text-gray-900 dark:text-white">
-              {zones.map((section, index) => (
+              {zones.map((section) => (
                 <AccordionItem
-                  key={index}
+                  key={section.title}
                   title={section.title}
                   className="text-gray-900 dark:text-white"
                   classNames={{
@@ -96,9 +99,9 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
                   }}
                 >
                   <div className="flex flex-col gap-2">
-                    {section.items.map((item, itemIndex) => (
+                    {section.items.map((item) => (
                       <Button
-                        key={itemIndex}
+                        key={item}
                         variant="light"
                         className="justify-start text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-blue-700"
                         onPress={() => handleZoneClick(item)}

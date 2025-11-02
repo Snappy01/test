@@ -236,8 +236,14 @@ export const WebSocketProvider = ({ children, wsUrl = null }) => {
 
   /**
    * Fonction pour se déconnecter du serveur
+   * @param {boolean} silent - Si true, n'affiche pas de notification de déconnexion
    */
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback((silent = false) => {
+    // Si silent, marquer comme non connecté pour éviter la notification
+    if (silent) {
+      wasConnectedRef.current = false
+    }
+    
     if (wsRef.current) {
       wsRef.current.close()
       wsRef.current = null
