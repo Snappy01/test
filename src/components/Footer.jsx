@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import { Button, ButtonGroup } from '@heroui/react'
 
 const Footer = ({ activeCategory, onCategoryChange }) => {
@@ -21,17 +22,48 @@ const Footer = ({ activeCategory, onCategoryChange }) => {
             <Button
               key={category.id}
               onPress={() => onCategoryChange(category.id)}
-              className={`flex-1 flex flex-col items-center gap-1 min-h-[60px] ${
+              className={`relative flex-1 flex flex-col items-center gap-1 min-h-[60px] bg-transparent hover:bg-white/10 dark:hover:bg-white/5 ${
                 activeCategory === category.id 
-                  ? 'bg-blue-500 dark:bg-blue-600' 
-                  : 'bg-blue-400/50 dark:bg-blue-800/50 hover:bg-blue-300/50 dark:hover:bg-blue-700/50'
+                  ? 'opacity-100' 
+                  : 'opacity-70 hover:opacity-100'
               }`}
-              variant={activeCategory === category.id ? 'solid' : 'flat'}
+              variant="light"
+              as={motion.button}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
-              <span className="text-xl">{category.icon}</span>
-              <span className="text-xs sm:text-sm font-medium text-white">
+              {/* Indicateur animé avec layoutId pour glissement fluide */}
+              {activeCategory === category.id && (
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 h-1 bg-white rounded-full"
+                  layoutId="activeIndicator"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+              
+              {/* Icône avec animation scale et rotate (wobble) */}
+              <motion.span
+                className="relative text-xl"
+                animate={{
+                  scale: activeCategory === category.id ? 1.2 : 1,
+                  rotate: activeCategory === category.id ? [0, -10, 10, -10, 0] : 0,
+                }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                {category.icon}
+              </motion.span>
+              
+              {/* Texte avec animation fade et décalage vertical */}
+              <motion.span
+                className="text-xs sm:text-sm font-medium text-white"
+                animate={{
+                  opacity: activeCategory === category.id ? 1 : 0.7,
+                  y: activeCategory === category.id ? 0 : 2,
+                }}
+                transition={{ duration: 0.3 }}
+              >
                 {category.label}
-              </span>
+              </motion.span>
             </Button>
           ))}
         </ButtonGroup>
