@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "copy-to-docs": "node scripts/copy-to-docs.js",
+    "loadgithubpage": "npm run build && npm run copy-to-docs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
