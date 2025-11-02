@@ -10,8 +10,16 @@ import BlindsCard from './components/BlindsCard'
 import AudioCard from './components/AudioCard'
 import HVACCard from './components/HVACCard'
 import LightsPresets from './components/LightsPresets'
-import zonesData from './config/zones.json'
 import './App.css'
+
+/**
+ * URL de base pour charger les fichiers de configuration des zones
+ * Permet de charger les configs depuis public/config/ via HTTP
+ * 
+ * Pour changer la source plus tard (CDN, API, etc.), modifier cette constante
+ * ou utiliser une variable d'environnement : import.meta.env.VITE_CONFIG_BASE_URL
+ */
+const CONFIG_BASE_URL = import.meta.env.VITE_CONFIG_BASE_URL || '/test/config'
 
 /**
  * COMPOSANT PRINCIPAL DE L'APPLICATION
@@ -39,6 +47,9 @@ function App() {
   const [lightPresetTrigger, setLightPresetTrigger] = useState(null)
   const [lightPresetValue, setLightPresetValue] = useState(null)
   
+  // Données des zones chargées depuis zones.json
+  const [zonesData, setZonesData] = useState([])
+  
   // Mapping displayName → zoneId (créé au démarrage)
   const [zoneIdMap, setZoneIdMap] = useState(null)
   
@@ -56,20 +67,52 @@ function App() {
   const { sendCommand, connect, disconnect, isConnected } = useWebSocket()
 
   // ============================================================
+  // CHARGEMENT DE ZONES.JSON
+  // ============================================================
+  
+  /**
+   * Charge zones.json au démarrage de l'application via fetch()
+   * Ce fichier contient la liste de toutes les zones disponibles
+   */
+  useEffect(() => {
+    const loadZones = async () => {
+      try {
+        const response = await fetch(`${CONFIG_BASE_URL}/zones.json`)
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP ${response.status}: Impossible de charger zones.json`)
+        }
+        const data = await response.json()
+        setZonesData(data)
+      } catch (error) {
+        console.error('Erreur lors du chargement de zones.json:', error)
+        // En cas d'erreur, zonesData reste un tableau vide
+        setZonesData([])
+      }
+    }
+
+    loadZones()
+  }, [])
+
+  // ============================================================
   // INITIALISATION DU MAPPING DISPLAYNAME → ZONEID
   // ============================================================
   
   /**
-   * Crée le mapping displayName → zoneId au démarrage
+   * Crée le mapping displayName → zoneId une fois que zonesData est chargé
    * Ce mapping permet de trouver le zoneId à partir du displayName (selectedZone)
    */
   useEffect(() => {
+    if (zonesData.length === 0) {
+      // Pas encore chargé ou erreur
+      return
+    }
+
     const map = {}
     zonesData.forEach(zone => {
       map[zone.displayName] = zone.zoneId
     })
     setZoneIdMap(map)
-  }, [])
+  }, [zonesData])
   
   // ============================================================
   // CHARGEMENT DE LA CONFIGURATION DE LA ZONE
@@ -124,9 +167,17 @@ function App() {
           throw new Error(`Zone ou fileName non trouvé pour zoneId: ${zoneId}`)
         }
         
-        // Charger dynamiquement le fichier JSON (fileName contient déjà l'extension .json)
-        const configModule = await import(`./config/${zoneInfo.fileName}`)
-        const config = configModule.default
+        // Charger dynamiquement le fichier JSON via HTTP (fileName contient déjà l'extension .json)
+        const configUrl = `${CONFIG_BASE_URL}/${zoneInfo.fileName}`
+        const response = await fetch(configUrl)
+        
+        // Vérifier que la requête HTTP a réussi
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP ${response.status}: Impossible de charger ${configUrl}`)
+        }
+        
+        // Parser la réponse JSON
+        const config = await response.json()
         
         // Vérifier que le zoneId correspond
         if (config.zoneId !== zoneId) {
@@ -467,6 +518,7 @@ function App() {
         selectedZone={selectedZone}
         onZoneSelect={setSelectedZone}
         onSettingsOpen={setIsSettingsOpen}
+        zonesData={zonesData}
       />
 
       {/* Zone de contenu principale - scrollable */}

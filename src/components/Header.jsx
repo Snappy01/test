@@ -2,13 +2,17 @@ import { useState, useMemo } from 'react'
 import { Button, Drawer, DrawerContent, DrawerHeader, DrawerBody, Accordion, AccordionItem } from '@heroui/react'
 import SplitText from './SplitText'
 import SettingsIcon from './SettingsIcon'
-import zonesData from '../config/zones.json'
 
-const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
+const Header = ({ selectedZone, onZoneSelect, onSettingsOpen, zonesData = [] }) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  // Organiser les zones par étage depuis zones.json
+  // Organiser les zones par étage depuis zonesData (reçu en prop)
   const zones = useMemo(() => {
+    // Si zonesData est vide ou pas encore chargé, retourner un tableau vide
+    if (!zonesData || zonesData.length === 0) {
+      return []
+    }
+
     const zonesByFloor = {}
     
     zonesData.forEach(zone => {
@@ -23,7 +27,7 @@ const Header = ({ selectedZone, onZoneSelect, onSettingsOpen }) => {
       title: floor,
       items: zonesByFloor[floor]
     }))
-  }, [])
+  }, [zonesData]) // Dépend de zonesData maintenant !
 
   const handleZoneClick = (zone) => {
     onZoneSelect(zone)
