@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import { Card, CardBody, Button, ButtonGroup } from '@heroui/react'
 import { useWebSocket } from '../contexts/WebSocketContext'
 import { useDeviceFeedback } from '../hooks/useDeviceFeedback'
-
+import { motion } from 'framer-motion'
+import TextType from './TextType'
 /**
  * COMPOSANT CARD POUR LES STORES/VOLETS
  * 
@@ -99,7 +100,14 @@ const BlindsCard = ({ device }) => {
       <CardBody className="p-4">
         <div className="flex flex-col gap-4">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white text-center">
-            {device.Name}
+          <TextType
+                text={device.Name}
+                typingSpeed={50}
+                initialDelay={100}
+                loop={false}
+                showCursor={false}
+
+              />
           </h3>
           
           {/* Boutons de contrôle */}
@@ -112,35 +120,60 @@ const BlindsCard = ({ device }) => {
             <Button
               onPress={handleUp}
               className="flex-1 text-xs sm:text-sm"
-              size="md"
+              size="lg"
               startContent={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="18 15 12 9 6 15"></polyline>
-                </svg>
+                <motion.svg 
+                  width="28" 
+                  height="28" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <path d="m18 15-6-6-6 6"/>
+                </motion.svg>
               }
             >
-              <span className="hidden sm:inline">UP</span>
-              <span className="sm:hidden">↑</span>
+            
             </Button>
             <Button
-              onPress={handleStop}
-              className="flex-1 text-xs sm:text-sm"
-              size="md"
-            >
-              STOP
-            </Button>
+  onPress={handleStop}
+  className="flex-1 text-xs sm:text-sm"
+  size="lg"
+  startContent={
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="6" width="12" height="12" rx="2"/>
+    </svg>
+  }
+>
+ 
+</Button>
             <Button
               onPress={handleDown}
               className="flex-1 text-xs sm:text-sm"
-              size="md"
+              size="lg"
               startContent={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
+                <motion.svg 
+                  width="28" 
+                  height="28" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  animate={{ y: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <path d="m6 9 6 6 6-6"/>
+                </motion.svg>
               }
             >
-              <span className="hidden sm:inline">DOWN</span>
-              <span className="sm:hidden">↓</span>
+              
             </Button>
           </ButtonGroup>
         </div>

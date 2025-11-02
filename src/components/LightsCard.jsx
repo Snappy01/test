@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardBody, Switch, Slider } from '@heroui/react'
 import { useWebSocket } from '../contexts/WebSocketContext'
 import { useDeviceFeedback } from '../hooks/useDeviceFeedback'
-
+import TextType from './TextType'
 /**
  * COMPOSANT CARD POUR LES LUMIÈRES
  * 
@@ -21,10 +21,10 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
   // ============================================================
   // RÉCUPÉRATION DU CONTEXT ET DES FEEDBACKS
   // ============================================================
-  
+
   // Récupérer les fonctions du WebSocketContext
   const { sendCommand, isConnected } = useWebSocket()
-  
+
   // Récupérer les feedbacks pour ce device depuis le store
   // feedbacks = { [id]: { id, type, value, timestamp } }
   // Exemple: { 10: { id: 10, type: "ushort", value: 75, ... }, 19: { id: 19, ... }, ... }
@@ -33,21 +33,21 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
   // ============================================================
   // ÉTAT LOCAL POUR L'UI
   // ============================================================
-  
+
   const [isOn, setIsOn] = useState(false)
   const [intensity, setIntensity] = useState(50) // Valeur affichée dans le slider
-  
+
   // Ref pour savoir si l'utilisateur est en train d'utiliser le slider
   // Si true, on ignore les feedbacks du serveur pour éviter les conflits
   const isDraggingIntensityRef = useRef(false)
-  
+
   // Valeur temporaire pendant le drag (pour éviter les re-renders inutiles)
   const dragValueRef = useRef(null)
 
   // ============================================================
   // EXTRACTION DES IDs DU DEVICE
   // ============================================================
-  
+
   // Extraire les IDs des commandes pour savoir quels feedbacks nous intéressent
   const intensityId = device.commands?.ushort?.intensity    // Ex: 10
   const powerOnId = device.commands?.digital?.power_on       // Ex: 19
@@ -56,7 +56,7 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
   // ============================================================
   // SYNCHRONISATION AVEC LES FEEDBACKS DU SERVEUR
   // ============================================================
-  
+
   /**
    * Synchronise l'état local avec les feedbacks reçus du serveur
    * Se déclenche quand feedbacks change (via useDeviceFeedback)
@@ -73,7 +73,7 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
     if (feedbacks[intensityId]) {
       // feedbacks[10] = { id: 10, type: "ushort", value: 75, ... }
       const feedbackValue = feedbacks[intensityId].value
-      
+
       // Ne mettre à jour que si la valeur a vraiment changé (optimisation)
       if (feedbackValue !== intensity) {
         setIntensity(feedbackValue)  // Mettre à jour l'intensité
@@ -88,14 +88,14 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
 
     // Vérifier le feedback power_off (ID 20 par exemple)
     if (feedbacks[powerOffId]?.value === true) {
-      setIsOn(false)     
+      setIsOn(false)
     }
   }, [feedbacks, intensityId, powerOnId, powerOffId, intensity])
 
   // ============================================================
   // GESTION DES PRESETS EXTERNES
   // ============================================================
-  
+
   /**
    * Applique un preset externe (depuis LightsPresets)
    * Se déclenche quand presetTrigger ou presetValue change
@@ -105,7 +105,7 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
       const newIntensity = presetValue
       setIntensity(newIntensity)
       setIsOn(newIntensity > 0)
-      
+
       // Envoyer les commandes au serveur
       if (device.commands?.digital && device.commands?.ushort?.intensity) {
         if (newIntensity === 0) {
@@ -123,14 +123,14 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
   // ============================================================
   // HANDLERS D'INTERACTION UTILISATEUR
   // ============================================================
-  
+
   /**
    * Gère le toggle ON/OFF de la lumière
    */
   const handleToggle = () => {
     const newState = !isOn
     setIsOn(newState)
-    
+
     if (device.commands?.digital && device.commands?.ushort?.intensity) {
       if (newState) {
         // Switch ON : slider à 50% + envoie power_on + intensité 50
@@ -170,14 +170,14 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
    */
   const handleIntensityChange = (value) => {
     setIntensity(value)
-    
+
     // Synchronisation visuelle du switch avec le slider
     if (value === 0) {
       setIsOn(false) // Slider à 0 → switch OFF visuellement
     } else if (value > 0 && !isOn) {
       setIsOn(true) // Slider > 0 et switch était OFF → switch ON visuellement
     }
-    
+
     // Envoyer SEULEMENT la commande d'intensité (jamais power_on/off)
     if (device.commands?.ushort?.intensity) {
       sendCommand('ushort', device.commands.ushort.intensity, value)
@@ -187,7 +187,7 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
   // ============================================================
   // RENDU
   // ============================================================
-  
+
   return (
     <Card className="bg-white dark:bg-blue-800/50 border border-gray-200 dark:border-blue-600/50">
       <CardBody className="p-4">
@@ -195,7 +195,13 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
           {/* En-tête avec nom et switch ON/OFF */}
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate flex-1">
-              {device.Name}
+              <TextType
+                text={device.Name}
+                typingSpeed={50}
+                initialDelay={100}
+                loop={false}
+                showCursor={false}
+              />
             </h3>
             <Switch
               isSelected={isOn}
@@ -211,7 +217,7 @@ const LightsCard = ({ device, presetValue, presetTrigger }) => {
               </span>
             </Switch>
           </div>
-          
+
           {/* Slider d'intensité (si disponible) */}
           {device.commands?.ushort?.intensity && (
             <div className="flex flex-col gap-2">

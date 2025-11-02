@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardBody, Switch, Slider, Button } from '@heroui/react'
 import { useWebSocket } from '../contexts/WebSocketContext'
 import { useDeviceFeedback } from '../hooks/useDeviceFeedback'
+import TextType from './TextType'
 
 /**
  * COMPOSANT CARD POUR L'AUDIO
@@ -195,7 +196,14 @@ const AudioCard = ({ device }) => {
           {/* En-tête avec nom et bouton MUTE */}
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate flex-1">
-              {device.Name}
+            <TextType
+                text={device.Name}
+                typingSpeed={50}
+                initialDelay={100}
+                loop={false}
+                showCursor={false}
+
+              />
             </h3>
             <Button
               onPress={handleMuteToggle}

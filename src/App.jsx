@@ -473,12 +473,14 @@ function App() {
                 )
             case 'Blinds':
               return (
+                <div className='justify-items-center'>
                 <BlindsCard
                   key={`${device.Name}-${index}`}
                   device={device}
                   // Note: onCommand, isConnected et latestFeedback ne sont plus passés
                   // Ils sont maintenant récupérés via useWebSocket() et useDeviceFeedback()
                 />
+                </div>
               )
             case 'AudioZones':
               return (

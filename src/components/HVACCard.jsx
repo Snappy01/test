@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardBody, Slider, Button, ButtonGroup } from '@heroui/react'
 import { useWebSocket } from '../contexts/WebSocketContext'
 import { useDeviceFeedback } from '../hooks/useDeviceFeedback'
+import TextType from './TextType'
 
 /**
  * COMPOSANT CARD POUR LA CLIMATISATION (HVAC)
@@ -135,7 +136,13 @@ const HVACCard = ({ device }) => {
       <CardBody className="p-4">
         <div className="flex flex-col gap-4">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white text-center">
-            {device.Name}
+            <TextType
+              text={device.Name}
+              typingSpeed={50}
+              initialDelay={100}
+              loop={false}
+              showCursor={false}
+            />
           </h3>
           
           {/* Affichage des températures actuelle et cible */}
