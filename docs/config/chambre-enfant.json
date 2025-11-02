@@ -1,0 +1,116 @@
+{
+  "zoneId": 3,
+  "roomName": "ChambreEnfant",
+  "wsUrl": "ws://172.16.80.104:9899/server",
+  "devices": {
+    "Lights": [
+      {
+        "Name": "Main Light",
+        "commands": {
+          "digital": {
+            "power_on": 1,
+            "power_off": 2
+          },
+          "ushort": {
+            "intensity": 1
+          }
+        }
+      },
+      {
+        "Name": "Desk",
+        "commands": {
+          "digital": {
+            "power_on": 3,
+            "power_off": 4
+          },
+          "ushort": {
+            "intensity": 2
+          }
+        }
+      },
+      {
+        "Name": "Bed",
+        "commands": {
+          "digital": {
+            "power_on": 5,
+            "power_off": 6
+          },
+          "ushort": {
+            "intensity": 3
+          }
+        }
+      },
+      {
+        "Name": "Ceiling",
+        "commands": {
+          "digital": {
+            "power_on": 7,
+            "power_off": 8
+          },
+          "ushort": {
+            "intensity": 4
+          }
+        }
+      },
+      {
+        "Name": "Night Light",
+        "commands": {
+          "digital": {
+            "power_on": 9,
+            "power_off": 10
+          },
+          "ushort": {
+            "intensity": 5
+          }
+        }
+      },
+      {
+        "Name": "Strip Led",
+        "commands": {
+          "digital": {
+            "power_on": 11,
+            "power_off": 12
+          },
+          "ushort": {
+            "intensity": 6
+          }
+        }
+      }
+    ],
+    "lightPresets": [
+      {
+        "commands": {
+          "digital": {
+            "Morning": 1,
+            "Afternoon": 2,
+            "Evening": 3,
+            "Night": 4,
+            "Off": 5
+          }
+        }
+      }
+    ],
+    "Blinds": [
+      {
+        "Name": "Window",
+        "commands": {
+          "digital": {
+            "power_up": 100,
+            "stop": 101,
+            "power_down": 102
+          }
+        }
+      }
+    ],
+    "AudioZones": [],
+    "ACs": [],
+    "Global": {
+      "commands": {
+        "digital": {
+          "power_on": 80,
+          "power_off": 81
+        }
+      }
+    }
+  }
+}

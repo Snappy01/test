@@ -1,0 +1,236 @@
+{
+  "zoneId": 1,
+  "roomName": "Chambre Maitre",
+  "wsUrl": "ws://192.168.1.110:9494/server",
+  "devices": {
+    "Lights": [
+      {
+        "Name": "Cabin",
+        "commands": {
+          "digital": {
+            "power_on": 19,
+            "power_off": 20
+          },
+          "ushort": {
+            "intensity": 10
+          }
+        }
+      },
+      {
+        "Name": "Dressing",
+        "commands": {
+          "digital": {
+            "power_on": 23,
+            "power_off": 24
+          },
+          "ushort": {
+            "intensity": 1
+          }
+        }
+      },
+      {
+        "Name": "Ceiling",
+        "commands": {
+          "digital": {
+            "power_on": 25,
+            "power_off": 26
+          },
+          "ushort": {
+            "intensity": 2
+          }
+        }
+      },
+      {
+        "Name": "Bed",
+        "commands": {
+          "digital": {
+            "power_on": 27,
+            "power_off": 28
+          },
+          "ushort": {
+            "intensity": 3
+          }
+        }
+      },
+      {
+        "Name": "Desk",
+        "commands": {
+          "digital": {
+            "power_on": 29,
+            "power_off": 30
+          },
+          "ushort": {
+            "intensity": 4
+          }
+        }
+      },
+      {
+        "Name": "Strip Led",
+        "commands": {
+          "digital": {
+            "power_on": 31,
+            "power_off": 32
+          },
+          "ushort": {
+            "intensity": 5
+          }
+        }
+      },
+      {
+        "Name": "Bathroom",
+        "commands": {
+          "digital": {
+            "power_on": 21,
+            "power_off": 22
+          },
+          "ushort": {
+            "intensity": 11
+          }
+        }
+      },
+      {
+        "Name": "Toilet",
+        "commands": {
+          "digital": {
+            "power_on": 33,
+            "power_off": 34
+          },
+          "ushort": {
+            "intensity": 6
+          }
+        }
+      },
+      {
+        "Name": "Mirror",
+        "commands": {
+          "digital": {
+            "power_on": 35,
+            "power_off": 36
+          },
+          "ushort": {
+            "intensity": 7
+          }
+        }
+      },
+      {
+        "Name": "Strip Led",
+        "commands": {
+          "digital": {
+            "power_on": 15,
+            "power_off": 16
+          },
+          "ushort": {
+            "intensity": 8
+          }
+        }
+      },
+      {
+        "Name": "Shower",
+        "commands": {
+          "digital": {
+            "power_on": 17,
+            "power_off": 18
+          },
+          "ushort": {
+            "intensity": 9
+          }
+        }
+      }
+    ],
+    "lightPresets": [
+      {         
+        "commands": {
+            "digital": {
+            "Morning": 1              ,
+            "Afternoon": 2
+            ,
+            "Evening": 3
+            ,
+            "Night": 4
+            ,
+           "Off": 5
+          }
+        }
+      }
+    ],
+    "Blinds": [
+      {
+        "Name": "Roman",
+        "commands": {
+          "digital": {
+            "power_up": 100,
+            "stop": 101,
+            "power_down": 102
+          }
+        }
+      },
+      {
+        "Name": "Blackout",
+        "commands": {
+          "digital": {
+            "power_up": 103,
+            "stop": 104,
+            "power_down": 105
+          }
+        }
+      },
+      {
+        "Name": "Venetian",
+        "commands": {
+          "digital": {
+            "power_up": 106,
+            "stop": 107,
+            "power_down": 108
+          }
+        }
+      }
+    ],
+    "AudioZones": [
+      {
+        "Name": "Room",
+        "commands": {
+          "digital": {
+            "mute_on": 202,
+            "mute_off": 203
+          },
+          "ushort": {
+            "volume": 200,
+            "audio_mode": 201,
+            "subwoofer_level": 202
+          }
+        }
+      },
+      {
+        "Name": "Bathroom",
+        "commands": {
+          "digital": {
+            "mute_on": 206,
+            "mute_off": 207
+          },
+          "ushort": {
+            "volume": 203
+          }
+        }
+      }
+    ],
+    "ACs": [
+      {
+        "Name": "Living Room AC",
+        "commands": {
+          "ushort": {
+            "temperature": 400,
+            "current_temperature": 401
+          }
+        }
+      }
+    ],
+    "Global": {
+      "commands": {
+        "digital": {
+          "power_on": 80,
+          "power_off": 81
+        }
+      }
+    }
+  }
+}
