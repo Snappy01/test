@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "copy-to-docs": "node scripts/copy-to-docs.js",
-    "loadgithubpage": "npm run build && npm run copy-to-docs"
+    "loadgithubpage": "npm run build && npm run copy-to-docs && git add docs && git commit -m \"docs: update GitHub Pages\" && git push"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
